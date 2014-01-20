@@ -19,6 +19,8 @@ namespace KinectCNPQ
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        Zombie zumbi;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -35,6 +37,8 @@ namespace KinectCNPQ
         {
             // TODO: Add your initialization logic here
 
+            zumbi = new Zombie(100, new Vector3(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2, 100));
+
             base.Initialize();
         }
 
@@ -46,7 +50,7 @@ namespace KinectCNPQ
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            zumbi.LoadTexture(Content);
             // TODO: use this.Content to load your game content here
         }
 
@@ -67,7 +71,8 @@ namespace KinectCNPQ
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            KeyboardState keyboard = Keyboard.GetState();
+            if (keyboard.IsKeyDown(Keys.Escape))
                 this.Exit();
 
             // TODO: Add your update logic here
@@ -84,6 +89,9 @@ namespace KinectCNPQ
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+                zumbi.Draw(spriteBatch);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
