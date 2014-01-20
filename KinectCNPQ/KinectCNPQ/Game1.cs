@@ -39,7 +39,7 @@ namespace KinectCNPQ
             this.IsMouseVisible = true;
 
             inimigos = new List<Zombie>();
-            Zombie zumbi = new Zombie(100, new Vector3(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2, 100));
+            Zombie zumbi = new Zombie(100, new Vector3(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2, 10), (float)0.01);
             inimigos.Add(zumbi);
 
             base.Initialize();
@@ -87,7 +87,8 @@ namespace KinectCNPQ
                     inimigos[i].Morrer();
                     inimigos.Remove(inimigos[i]);
                 }
-
+            foreach (Zombie zumbi in inimigos)
+                zumbi.Update();
             // TODO: Add your update logic here
 
             base.Update(gameTime);
