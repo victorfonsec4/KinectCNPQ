@@ -19,7 +19,7 @@ namespace KinectCNPQ
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Zombie zumbi;
+        List<Zombie> inimigos;
 
         public Game1()
         {
@@ -36,8 +36,11 @@ namespace KinectCNPQ
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            this.IsMouseVisible = true;
 
-            zumbi = new Zombie(100, new Vector3(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2, 100));
+            inimigos = new List<Zombie>();
+            Zombie zumbi = new Zombie(100, new Vector3(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2, 100));
+            inimigos.Add(zumbi);
 
             base.Initialize();
         }
@@ -50,7 +53,8 @@ namespace KinectCNPQ
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            zumbi.LoadTexture(Content);
+            foreach (Zombie zumbi in inimigos)
+                zumbi.LoadTexture(Content);
             // TODO: use this.Content to load your game content here
         }
 
@@ -72,8 +76,17 @@ namespace KinectCNPQ
         {
             // Allows the game to exit
             KeyboardState keyboard = Keyboard.GetState();
+            MouseState mouse = Mouse.GetState();
+
             if (keyboard.IsKeyDown(Keys.Escape))
                 this.Exit();
+
+            for (int i = 0; i < inimigos.Count; i++)
+                if (inimigos[i].isHit(new Point(mouse.X, mouse.Y)))
+                {
+                    inimigos[i].Morrer();
+                    inimigos.Remove(inimigos[i]);
+                }
 
             // TODO: Add your update logic here
 
@@ -90,7 +103,10 @@ namespace KinectCNPQ
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
+
+            foreach(Zombie zumbi in inimigos)
                 zumbi.Draw(spriteBatch);
+
             spriteBatch.End();
 
             base.Draw(gameTime);

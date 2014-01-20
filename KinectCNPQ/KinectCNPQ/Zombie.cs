@@ -27,9 +27,20 @@ namespace KinectCNPQ
         {
             textura = Content.Load<Texture2D>("black");
         }
+
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(textura, new Vector2(posicao.X, posicao.Y), Color.White); 
+        }
+
+        public bool isHit(Point mousePos)
+        {
+            Rectangle zombieBounds = new Rectangle( (int)posicao.X, (int)posicao.Y, (int)textura.Width, (int)textura.Height);
+            return zombieBounds.Contains(mousePos);
+        }
+
+        public void Morrer()
+        {
         }
     }
 }
