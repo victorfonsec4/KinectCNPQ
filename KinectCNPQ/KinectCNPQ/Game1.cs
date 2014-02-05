@@ -9,9 +9,29 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System.Diagnostics;
+using System.Windows.Forms;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Reflection;
+using XnaInp = Microsoft.Xna.Framework.Input;
 
 namespace KinectCNPQ
 {
+    static class NativeMethods
+    {
+        public static Cursor LoadCustomCursor(string path)
+        {
+            IntPtr hCurs = LoadCursorFromFile(path);
+            if (hCurs == IntPtr.Zero) throw new Win32Exception();
+            var curs = new Cursor(hCurs);
+            // Note: force the cursor to own the handle so it gets released properly
+            var fi = typeof(Cursor).GetField("ownHandle", BindingFlags.NonPublic | BindingFlags.Instance);
+            fi.SetValue(curs, true);
+            return curs;
+        }
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern IntPtr LoadCursorFromFile(string path);
+    }
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -41,6 +61,9 @@ namespace KinectCNPQ
         {
             // TODO: Add your initialization logic here
             this.IsMouseVisible = true;
+            Cursor myCursor = NativeMethods.LoadCustomCursor(@"Content\Cursors\cursor.cur");
+            Form winForm = (Form)Form.FromHandle(this.Window.Handle);
+            winForm.Cursor = myCursor;
             time = 0;
 
             inimigos = new List<Zombie>();
@@ -85,14 +108,14 @@ namespace KinectCNPQ
             KeyboardState keyboard = Keyboard.GetState();
             MouseState mouse = Mouse.GetState();
 
-            if (keyboard.IsKeyDown(Keys.Escape))
+            if (keyboard.IsKeyDown(XnaInp::Keys.Escape))
                 this.Exit();
 
             foreach(Zombie zumbi in inimigos)
                 if (zumbi.isMarcado(new Point(mouse.X, mouse.Y)))
                     zumbi.marcado = true;
 
-            if (mouse.LeftButton == ButtonState.Pressed)
+            if (mouse.LeftButton == XnaInp::ButtonState.Pressed)
                 inimigos.RemoveAll(zumbi => zumbi.marcado == true);
 
             foreach (Zombie zumbie in inimigos)

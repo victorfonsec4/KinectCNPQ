@@ -20,7 +20,7 @@ namespace KinectCNPQ
         float velocidade;
         float tam;//usado para redimensionar o tamanho da textura e dar a impressão que o zombie está se aproximando(fazendo ele ficar maior) varia de 0.5-5
         float altura, largura;//dimensoes da textura do zombie apos ser multiplicada por tam
-        public bool marcado;//o jogador vai passar a mao por cima daonde vai atirar e depois fazer alguma acao pra atirar e todos os zomies q foram marcados vao levar dano
+        public bool marcado;//o jogador vai passar a mao por cima daonde vai atirar e depois fazer alguma acao pra atirar e todos os zombies q foram marcados vao levar dano
 
         public Zombie(int vida, int dano, Vector3 posicao, float velocidade)
         {
@@ -28,22 +28,21 @@ namespace KinectCNPQ
             this.dano = dano;
             this.posicao = posicao;
             this.velocidade = velocidade;
-            tam = (float)0.1;
             marcado = false;
         }
 
         public void Update()
         {
-            if(posicao.Z > 0)
+            if (posicao.Z > 0)
                 posicao.Z -= velocidade;
-            tam = (float)(0.5 + 5*(10-posicao.Z)/10);
-            altura = textura.Height*tam;
-            largura = textura.Width*tam;
+            tam = (float)(0.5 * (1 + (10 - posicao.Z)));
+            altura = 100 * tam;
+            largura = 100 * tam;
         }
 
         public void LoadTexture(ContentManager Content)
         {
-            textura = Content.Load<Texture2D>("black");
+            textura = Content.Load<Texture2D>("zombie");
         }
 
         public void Draw(SpriteBatch spriteBatch)
