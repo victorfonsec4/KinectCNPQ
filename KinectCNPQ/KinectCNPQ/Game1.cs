@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Diagnostics;
 
 namespace KinectCNPQ
 {
@@ -20,6 +21,9 @@ namespace KinectCNPQ
         SpriteBatch spriteBatch;
 
         List<Zombie> inimigos;
+        Player player;
+
+        int time;
 
         public Game1()
         {
@@ -37,10 +41,13 @@ namespace KinectCNPQ
         {
             // TODO: Add your initialization logic here
             this.IsMouseVisible = true;
+            time = 0;
 
             inimigos = new List<Zombie>();
-            Zombie zumbi = new Zombie(100, new Vector3(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2, 10), (float)0.01);
+            Zombie zumbi = new Zombie(100, 1, new Vector3(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2, 10), (float)0.01);
             inimigos.Add(zumbi);
+
+            player = new Player(100);
 
             base.Initialize();
         }
@@ -81,14 +88,30 @@ namespace KinectCNPQ
             if (keyboard.IsKeyDown(Keys.Escape))
                 this.Exit();
 
-            for (int i = 0; i < inimigos.Count; i++)
-                if (inimigos[i].isHit(new Point(mouse.X, mouse.Y)))
+            foreach(Zombie zumbi in inimigos)
+                if (zumbi.isMarcado(new Point(mouse.X, mouse.Y)))
+                    zumbi.marcado = true;
+
+            if (mouse.LeftButton == ButtonState.Pressed)
+                inimigos.RemoveAll(zumbi => zumbi.marcado == true);
+
+            foreach (Zombie zumbie in inimigos)
+                zumbie.Update();
+
+            time += gameTime.ElapsedGameTime.Milliseconds;
+            if (time >= 3000)
+            {
+                time = 0;
+                foreach (Zombie zumbi in inimigos)
                 {
-                    inimigos[i].Morrer();
-                    inimigos.Remove(inimigos[i]);
+                    if (zumbi.DistanciaAteJogador() == 0)
+                        player.LevarDano(zumbi.dano);
+
                 }
-            foreach (Zombie zumbi in inimigos)
-                zumbi.Update();
+            }
+            Debug.WriteLine(player.vida);
+            if (!player.vivo) ;
+                //acabar jogo
             // TODO: Add your update logic here
 
             base.Update(gameTime);

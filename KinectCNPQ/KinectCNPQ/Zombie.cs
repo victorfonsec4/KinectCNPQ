@@ -14,18 +14,22 @@ namespace KinectCNPQ
     class Zombie
     {
         int vida;
+        public int dano;//dano que o zombie causa na vida da barreira qnd ele esta com posicao.z = 0
         Vector3 posicao;//a posicao Z é a distância do zombie até a cerca que o jogador deve defender varia de 10-0
         Texture2D textura;
         float velocidade;
         float tam;//usado para redimensionar o tamanho da textura e dar a impressão que o zombie está se aproximando(fazendo ele ficar maior) varia de 0.5-5
         float altura, largura;//dimensoes da textura do zombie apos ser multiplicada por tam
+        public bool marcado;//o jogador vai passar a mao por cima daonde vai atirar e depois fazer alguma acao pra atirar e todos os zomies q foram marcados vao levar dano
 
-        public Zombie(int vida, Vector3 posicao, float velocidade)
+        public Zombie(int vida, int dano, Vector3 posicao, float velocidade)
         {
             this.vida = vida;
+            this.dano = dano;
             this.posicao = posicao;
             this.velocidade = velocidade;
             tam = (float)0.1;
+            marcado = false;
         }
 
         public void Update()
@@ -47,7 +51,7 @@ namespace KinectCNPQ
             spriteBatch.Draw(textura,new Rectangle( (int)(posicao.X - altura/2), (int)(posicao.Y - largura/2), (int)altura, (int)largura), null, Color.White); 
         }
 
-        public bool isHit(Point mousePos)
+        public bool isMarcado(Point mousePos)
         {
             Rectangle zombieBounds = new Rectangle((int)(posicao.X - altura / 2), (int)(posicao.Y - largura / 2), (int)altura, (int)largura);
             return zombieBounds.Contains(mousePos);
@@ -55,6 +59,11 @@ namespace KinectCNPQ
 
         public void Morrer()
         {
+        }
+
+        public int DistanciaAteJogador()
+        {
+            return ((int)posicao.Z);
         }
     }
 }
