@@ -121,6 +121,7 @@ namespace KinectCNPQ
             // Allows the game to exit
             KeyboardState keyboard = Keyboard.GetState();
             MouseState mouse = Mouse.GetState();
+            getPos();//atualiza a posicao do jogador(Cursor)
 
             if (keyboard.IsKeyDown(XnaInp::Keys.Escape))
                 this.Exit();
@@ -146,7 +147,7 @@ namespace KinectCNPQ
 
                 }
             }
-            Debug.WriteLine(player.vida);
+            //Debug.WriteLine(player.vida);
             if (!player.vivo) ;
                 //acabar jogo
             // TODO: Add your update logic here
@@ -165,8 +166,6 @@ namespace KinectCNPQ
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
-
-            DrawSkeleton(spriteBatch, new Vector2(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), jointTexture);
 
             foreach(Zombie zumbi in inimigos)
                 zumbi.Draw(spriteBatch);
@@ -194,14 +193,23 @@ namespace KinectCNPQ
                         skeleton = skel;
         }
 
-        private void DrawSkeleton(SpriteBatch spriteBatch, Vector2 resolution, Texture2D img)
+        private void getPos()
         {
             if (skeleton != null)
+            {
+                float x = 0, y = 0;
                 foreach (Joint joint in skeleton.Joints)
                 {
-                    Vector2 position = new Vector2((((0.5f * joint.Position.X) + 0.5f) * (resolution.X)), (((-0.5f * joint.Position.Y) + 0.5f) * (resolution.Y)));
-                    spriteBatch.Draw(img, new Rectangle(Convert.ToInt32(position.X), Convert.ToInt32(position.Y), 10, 10), Color.Red);
+                    if (joint.JointType == JointType.HandLeft || joint.JointType == JointType.HandRight)
+                    {
+                        x += joint.Position.X;
+                        y += joint.Position.Y;
+                    }
                 }
+                player.pos.X = x / 2;
+                player.pos.Y = y / 2;
+                Debug.WriteLine(player.pos.X + " " + player.pos.Y);
+            }
         }
 
     }

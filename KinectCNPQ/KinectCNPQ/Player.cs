@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace KinectCNPQ
 {
@@ -9,6 +10,7 @@ namespace KinectCNPQ
     {
         public int vida;
         public bool vivo;
+        public Vector2 pos;
 
         public Player(int vida)
         {
