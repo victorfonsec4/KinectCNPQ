@@ -150,6 +150,7 @@ namespace KinectCNPQ
             if (!player.vivo) ;
                 //acabar jogo
             // TODO: Add your update logic here
+            //teste
 
             base.Update(gameTime);
         }
