@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using XnaInp = Microsoft.Xna.Framework.Input;
+using Microsoft.Kinect;
 
 namespace KinectCNPQ
 {
@@ -39,6 +40,11 @@ namespace KinectCNPQ
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        //coisas do kinect
+        KinectSensor kinect;
+        Skeleton[] skeletonData;
+        Skeleton skeleton;
+        Texture2D jointTexture;
 
         List<Zombie> inimigos;
         Player player;
@@ -61,6 +67,12 @@ namespace KinectCNPQ
         {
             // TODO: Add your initialization logic here
             this.IsMouseVisible = true;
+
+            kinect = KinectSensor.KinectSensors[0];
+            kinect.SkeletonStream.Enable();
+            kinect.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(kinect_AllFramesReady);
+            kinect.Start();
+
             Cursor myCursor = NativeMethods.LoadCustomCursor(@"Content\Cursors\cursor.cur");
             Form winForm = (Form)Form.FromHandle(this.Window.Handle);
             winForm.Cursor = myCursor;
@@ -71,6 +83,7 @@ namespace KinectCNPQ
             inimigos.Add(zumbi);
 
             player = new Player(100);
+
 
             base.Initialize();
         }
@@ -83,6 +96,7 @@ namespace KinectCNPQ
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            jointTexture = Content.Load<Texture2D>("junta");
             foreach (Zombie zumbi in inimigos)
                 zumbi.LoadTexture(Content);
             // TODO: use this.Content to load your game content here
@@ -151,6 +165,8 @@ namespace KinectCNPQ
             // TODO: Add your drawing code here
             spriteBatch.Begin();
 
+            DrawSkeleton(spriteBatch, new Vector2(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), jointTexture);
+
             foreach(Zombie zumbi in inimigos)
                 zumbi.Draw(spriteBatch);
 
@@ -158,5 +174,34 @@ namespace KinectCNPQ
 
             base.Draw(gameTime);
         }
+
+        void kinect_AllFramesReady(object sender, AllFramesReadyEventArgs imageFrames)
+        {
+            using (SkeletonFrame skeletonFrame = imageFrames.OpenSkeletonFrame())
+                if (skeletonFrame != null)
+                {
+                    if ((skeletonData == null) || (this.skeletonData.Length != skeletonFrame.SkeletonArrayLength))
+                        this.skeletonData = new Skeleton[skeletonFrame.SkeletonArrayLength];
+
+                    //Copy the skeleton data to our array
+                    skeletonFrame.CopySkeletonDataTo(this.skeletonData);
+                }
+
+            if (skeletonData != null)
+                foreach (Skeleton skel in skeletonData)
+                    if (skel.TrackingState == SkeletonTrackingState.Tracked)
+                        skeleton = skel;
+        }
+
+        private void DrawSkeleton(SpriteBatch spriteBatch, Vector2 resolution, Texture2D img)
+        {
+            if (skeleton != null)
+                foreach (Joint joint in skeleton.Joints)
+                {
+                    Vector2 position = new Vector2((((0.5f * joint.Position.X) + 0.5f) * (resolution.X)), (((-0.5f * joint.Position.Y) + 0.5f) * (resolution.Y)));
+                    spriteBatch.Draw(img, new Rectangle(Convert.ToInt32(position.X), Convert.ToInt32(position.Y), 10, 10), Color.Red);
+                }
+        }
+
     }
 }
