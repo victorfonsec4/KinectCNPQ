@@ -45,6 +45,7 @@ namespace KinectCNPQ
         Skeleton[] skeletonData;
         Skeleton skeleton;
         Texture2D jointTexture;
+        Queue<Vector2> ultimasPos;
 
         List<Zombie> inimigos;
         Player player;
@@ -68,22 +69,26 @@ namespace KinectCNPQ
             // TODO: Add your initialization logic here
             this.IsMouseVisible = true;
 
+            //inicializa o kinect
             kinect = KinectSensor.KinectSensors[0];
             kinect.SkeletonStream.Enable();
             kinect.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(kinect_AllFramesReady);
             kinect.Start();
 
+            //inicializa o cursor
             Cursor myCursor = NativeMethods.LoadCustomCursor(@"Content\Cursors\cursor.cur");
             Form winForm = (Form)Form.FromHandle(this.Window.Handle);
             winForm.Cursor = myCursor;
             time = 0;
 
+            //inicializa zumbis
             inimigos = new List<Zombie>();
             Zombie zumbi = new Zombie(100, 1, new Vector3(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2, 10), (float)0.01);
             inimigos.Add(zumbi);
 
             player = new Player(100);
 
+            //inicializa lista com 900 zeros(30hz*30seg)
 
             base.Initialize();
         }
@@ -122,6 +127,23 @@ namespace KinectCNPQ
             KeyboardState keyboard = Keyboard.GetState();
             MouseState mouse = Mouse.GetState();
             getPos();//atualiza a posicao do jogador(Cursor)
+
+            ultimasPos.Enqueue(player.pos);
+            player.atualizarQuadrado(ultimasPos);
+            ultimasPos.Dequeue();
+
+            float xmin = 10, xmax = -10, ymin = 10, ymax = -10;
+            foreach (Vector2 posicao in ultimasPos)
+            {
+                xmin = Math.Min(xmin, posicao.X);
+                ymin = Math.Min(ymin, posicao.Y);
+                xmax = Math.Max(xmax, posicao.X);
+                ymax = Math.Max(ymax, posicao.X);
+            }
+            xmax += xmin;
+            ymax += ymin;
+            player.quadrado.X = xmax;
+            player.quadrado.Y = ymax;
 
             if (keyboard.IsKeyDown(XnaInp::Keys.Escape))
                 this.Exit();
@@ -167,7 +189,7 @@ namespace KinectCNPQ
             // TODO: Add your drawing code here
             spriteBatch.Begin();
 
-            foreach(Zombie zumbi in inimigos)
+            foreach (Zombie zumbi in inimigos)
                 zumbi.Draw(spriteBatch);
 
             spriteBatch.End();
