@@ -87,6 +87,9 @@ namespace KinectCNPQ
             inimigos.Add(zumbi);
 
             player = new Player(100);
+            ultimasPos = new Queue<Vector2>();
+            for (int i = 0; i < 900; i++)
+                ultimasPos.Enqueue(new Vector2(0,0));
 
             //inicializa lista com 900 zeros(30hz*30seg)
 
@@ -126,24 +129,13 @@ namespace KinectCNPQ
             // Allows the game to exit
             KeyboardState keyboard = Keyboard.GetState();
             MouseState mouse = Mouse.GetState();
-            getPos();//atualiza a posicao do jogador(Cursor)
+            player.setPos(skeleton);//atualiza a posicao do jogador(Cursor)
 
-            ultimasPos.Enqueue(player.pos);
-            player.atualizarQuadrado(ultimasPos);
+            ultimasPos.Enqueue(player.posMao);
+            player.atualizarQuadrado(ultimasPos);//atualiza quadrado baseado nos ultimos 30 segundos de dados
             ultimasPos.Dequeue();
 
-            float xmin = 10, xmax = -10, ymin = 10, ymax = -10;
-            foreach (Vector2 posicao in ultimasPos)
-            {
-                xmin = Math.Min(xmin, posicao.X);
-                ymin = Math.Min(ymin, posicao.Y);
-                xmax = Math.Max(xmax, posicao.X);
-                ymax = Math.Max(ymax, posicao.X);
-            }
-            xmax += xmin;
-            ymax += ymin;
-            player.quadrado.X = xmax;
-            player.quadrado.Y = ymax;
+            //Debug.WriteLine(player.quadrado.X + " " + player.quadrado.Y);
 
             if (keyboard.IsKeyDown(XnaInp::Keys.Escape))
                 this.Exit();
@@ -214,25 +206,5 @@ namespace KinectCNPQ
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                         skeleton = skel;
         }
-
-        private void getPos()
-        {
-            if (skeleton != null)
-            {
-                float x = 0, y = 0;
-                foreach (Joint joint in skeleton.Joints)
-                {
-                    if (joint.JointType == JointType.HandLeft || joint.JointType == JointType.HandRight)
-                    {
-                        x += joint.Position.X;
-                        y += joint.Position.Y;
-                    }
-                }
-                player.pos.X = x / 2;
-                player.pos.Y = y / 2;
-                Debug.WriteLine(player.pos.X + " " + player.pos.Y);
-            }
-        }
-
     }
 }
