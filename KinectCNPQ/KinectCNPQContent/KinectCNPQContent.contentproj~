@@ -57,8 +57,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Compile Include="aim.png">
       <Name>aim</Name>
+=======
+    <Compile Include="8800820-black-hd-background.jpg">
+      <Name>menuBackground</Name>
+>>>>>>> 9e5a410e08734fa5c35d12b60c5300b6ef7e8dfb
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

@@ -58,6 +58,10 @@ namespace KinectCNPQ
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.IsFullScreen = false;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
+            graphics.ApplyChanges();
             Content.RootDirectory = "Content";
         }
 
@@ -137,6 +141,7 @@ namespace KinectCNPQ
             player.setPos(skeleton, GraphicsDevice.Viewport);//atualiza a posicao do jogador(Cursor)
 
             //Debug.WriteLine(player.quadrado.X + " " + player.quadrado.Y);
+        
 
             if (keyboard.IsKeyDown(XnaInp::Keys.Escape))
                 this.Exit();
