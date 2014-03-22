@@ -33,6 +33,7 @@ namespace KinectCNPQ
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         private static extern IntPtr LoadCursorFromFile(string path);
     }
+
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -45,13 +46,15 @@ namespace KinectCNPQ
         Skeleton[] skeletonData;
         Skeleton skeleton;
         Texture2D jointTexture;
-        Queue<Vector2> ultimasPos;
 
         List<Zombie> inimigos;
         Player player;
 
         int time;
 
+        static void startKinect()
+        {
+        }
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -75,6 +78,10 @@ namespace KinectCNPQ
             kinect.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(kinect_AllFramesReady);
             kinect.Start();
 
+            //set resolucao
+            graphics.PreferredBackBufferHeight = 768;
+            graphics.PreferredBackBufferWidth = 1024;
+
             //inicializa o cursor
             Cursor myCursor = NativeMethods.LoadCustomCursor(@"Content\Cursors\cursor.cur");
             Form winForm = (Form)Form.FromHandle(this.Window.Handle);
@@ -87,9 +94,6 @@ namespace KinectCNPQ
             inimigos.Add(zumbi);
 
             player = new Player(100);
-            ultimasPos = new Queue<Vector2>();
-            for (int i = 0; i < 900; i++)
-                ultimasPos.Enqueue(new Vector2(0,0));
 
             //inicializa lista com 900 zeros(30hz*30seg)
 
@@ -105,6 +109,7 @@ namespace KinectCNPQ
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             jointTexture = Content.Load<Texture2D>("junta");
+            player.LoadTexture(Content);
             foreach (Zombie zumbi in inimigos)
                 zumbi.LoadTexture(Content);
             // TODO: use this.Content to load your game content here
@@ -129,18 +134,14 @@ namespace KinectCNPQ
             // Allows the game to exit
             KeyboardState keyboard = Keyboard.GetState();
             MouseState mouse = Mouse.GetState();
-            player.setPos(skeleton);//atualiza a posicao do jogador(Cursor)
-
-            ultimasPos.Enqueue(player.posMao);
-            player.atualizarQuadrado(ultimasPos);//atualiza quadrado baseado nos ultimos 30 segundos de dados
-            ultimasPos.Dequeue();
+            player.setPos(skeleton, GraphicsDevice.Viewport);//atualiza a posicao do jogador(Cursor)
 
             //Debug.WriteLine(player.quadrado.X + " " + player.quadrado.Y);
 
             if (keyboard.IsKeyDown(XnaInp::Keys.Escape))
                 this.Exit();
 
-            foreach(Zombie zumbi in inimigos)
+            foreach (Zombie zumbi in inimigos)
                 if (zumbi.isMarcado(new Point(mouse.X, mouse.Y)))
                     zumbi.marcado = true;
 
@@ -163,7 +164,7 @@ namespace KinectCNPQ
             }
             //Debug.WriteLine(player.vida);
             if (!player.vivo) ;
-                //acabar jogo
+            //acabar jogo
             // TODO: Add your update logic here
             //teste
 
@@ -177,13 +178,12 @@ namespace KinectCNPQ
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
             // TODO: Add your drawing code here
             spriteBatch.Begin();
 
             foreach (Zombie zumbi in inimigos)
                 zumbi.Draw(spriteBatch);
-
+            player.Draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);
