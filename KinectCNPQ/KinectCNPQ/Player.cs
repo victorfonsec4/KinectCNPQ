@@ -21,6 +21,7 @@ namespace KinectCNPQ
         public Vector2 pos;
         private Vector2 quadrado;//inicio em(0,0) fim em (quadrado.x, quadrado.y)
         private Queue<Vector2> ultimasPos900;
+        public Rectangle retangulo;
 
         public Player(int vida)
         {
@@ -52,7 +53,7 @@ namespace KinectCNPQ
                 vivo = false;
         }
 
-        public void atualizarQuadrado()
+        public void atualizarQuadrado()//atualiza o quadrado(q define as maximas posicoes do jogador), e estabiliza a mira
         {
             float xmin = 10, xmax = -10, ymin = 10, ymax = -10;
             this.posMao.X = 0;
@@ -115,6 +116,8 @@ namespace KinectCNPQ
                 pos.Y = (posRelQuad.Y / quadrado.Y) * (view.Height);
                 pos.Y = view.Height - pos.Y;
                 //Debug.WriteLine(this.pos.X + " " + this.pos.Y);
+                //atualiza retangulo do jogador
+                retangulo = new Rectangle((int)(pos.X - aimTexture.Width / 2), (int)(pos.Y - aimTexture.Height / 2), aimTexture.Width, aimTexture.Height);
             }
         }
     }

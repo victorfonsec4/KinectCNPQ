@@ -138,20 +138,36 @@ namespace KinectCNPQ
             // Allows the game to exit
             KeyboardState keyboard = Keyboard.GetState();
             MouseState mouse = Mouse.GetState();
+            GamePadState gamepad = GamePad.GetState(PlayerIndex.One);
             player.setPos(skeleton, GraphicsDevice.Viewport);//atualiza a posicao do jogador(Cursor)
 
             //Debug.WriteLine(player.quadrado.X + " " + player.quadrado.Y);
         
 
-            if (keyboard.IsKeyDown(XnaInp::Keys.Escape))
+            if (keyboard.IsKeyDown(XnaInp::Keys.Escape) || gamepad.Buttons.Back == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
                 this.Exit();
 
-            foreach (Zombie zumbi in inimigos)
-                if (zumbi.isMarcado(new Point(mouse.X, mouse.Y)))
-                    zumbi.marcado = true;
+            if ((gamepad.Triggers.Left > 0) || (gamepad.Triggers.Right > 0))
+            {
+                float vibration = Math.Max(gamepad.Triggers.Right, gamepad.Triggers.Left);
+                GamePad.SetVibration(PlayerIndex.One, vibration, vibration);
+                foreach (Zombie zumbi in inimigos)
+                {
+                    if (zumbi.retangulo.Intersects(player.retangulo))
+                        zumbi.LevarDano(1);
+                }
+            }
+            else
+                GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
 
-            if (mouse.LeftButton == XnaInp::ButtonState.Pressed)
-                inimigos.RemoveAll(zumbi => zumbi.marcado == true);
+            for (int i = inimigos.Count() - 1; i >= 0; i--)
+            {
+                if (inimigos[i].vida <= 0)
+                {
+                    inimigos[i].Morrer();
+                    inimigos.RemoveAt(i);
+                }
+            }
 
             foreach (Zombie zumbie in inimigos)
                 zumbie.Update();
